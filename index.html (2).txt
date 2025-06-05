@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameZone - Blog de Videojuegos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Textura de fibra de carbono */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, transparent 20%, rgba(255,255,255,0.1) 21%, rgba(255,255,255,0.1) 34%, transparent 35%, transparent),
+                linear-gradient(0deg, rgba(0,0,0,0.1), transparent 50%, rgba(0,0,0,0.1)),
+                linear-gradient(90deg, rgba(0,0,0,0.1), transparent 50%, rgba(0,0,0,0.1));
+            background-size: 40px 40px, 40px 40px, 40px 40px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(235, 232, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #EBE800;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #EBE800;
+            text-shadow: 0 0 10px rgba(235, 232, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(235, 232, 0, 0.5); }
+            to { text-shadow: 0 0 20px rgba(235, 232, 0, 0.8), 0 0 30px rgba(235, 232, 0, 0.6); }
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(45deg, #EBE800, #f5f200);
+            color: #000000;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(235, 232, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(235, 232, 0, 0.5);
+            background: linear-gradient(45deg, #f5f200, #EBE800);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal de login */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            margin: 10% auto;
+            padding: 2rem;
+            border: 2px solid #EBE800;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(235, 232, 0, 0.3);
+            animation: modalSlide 0.5s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #EBE800;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #EBE800;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #666;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #EBE800;
+            box-shadow: 0 0 10px rgba(235, 232, 0, 0.3);
+        }
+
+        /* Panel de administración */
+        .admin-panel {
+            display: none;
+            background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 2px solid #EBE800;
+            box-shadow: 0 8px 25px rgba(235, 232, 0, 0.2);
+        }
+
+        .admin-panel h2 {
+            color: #EBE800;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #EBE800;
+            font-weight: bold;
+        }
+
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #666;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+        }
+
+        /* Posts del blog */
+        .posts-container {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .post {
+            background: linear-gradient(135deg, rgba(45,45,45,0.9) 0%, rgba(26,26,26,0.9) 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid #444;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            animation: postSlide 0.6s ease-out;
+        }
+
+        @keyframes postSlide {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(235, 232, 0, 0.2);
+            border-color: #EBE800;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #EBE800;
+        }
+
+        .post-title {
+            color: #EBE800;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .post-date {
+            color: #cccccc;
+            font-size: 0.9rem;
+        }
+
+        .post-type {
+            background: #EBE800;
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .post-content {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .post-image {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            margin: 1rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff6666;
+            transform: scale(1.05);
+        }
+
+        /* Placeholder para posts vacíos */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .empty-state h3 {
+            color: #EBE800;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(90deg, #000000 0%, #333333 50%, #000000 100%);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 2px solid #EBE800;
+            color: #cccccc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .post-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Animaciones adicionales */
+        .bounce {
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">🎮 GameZone</div>
+            <div class="nav-buttons">
+                <button class="btn" onclick="showLogin()" id="loginBtn">Iniciar Sesión</button>
+                <button class="btn" onclick="logout()" id="logoutBtn" style="display: none;">Cerrar Sesión</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogin()">&times;</span>
+            <h2 style="color: #EBE800; text-align: center; margin-bottom: 1.5rem;">Iniciar Sesión</h2>
+            <div class="input-group">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" placeholder="Ingresa tu usuario">
+            </div>
+            <div class="input-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña">
+            </div>
+            <button class="btn" onclick="login()" style="width: 100%; margin-top: 1rem;">Ingresar</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Panel de Administración -->
+        <section class="admin-panel" id="adminPanel">
+            <h2>📝 Panel de Administración</h2>
+            
+            <div class="form-group">
+                <label for="postType">Tipo de Contenido:</label>
+                <select id="postType" onchange="toggleContentInputs()">
+                    <option value="texto">📰 Artículo de Texto</option>
+                    <option value="imagen">🖼️ Post con Imagen</option>
+                    <option value="review">⭐ Review de Juego</option>
+                    <option value="noticia">📢 Noticia Gaming</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="postTitle">Título del Post:</label>
+                <input type="text" id="postTitle" placeholder="Escribe un título épico...">
+            </div>
+
+            <div class="form-group">
+                <label for="postContent">Contenido:</label>
+                <textarea id="postContent" placeholder="Comparte tus pensamientos sobre gaming..."></textarea>
+            </div>
+
+            <div class="form-group" id="imageGroup">
+                <label for="postImage">URL de Imagen (opcional):</label>
+                <input type="url" id="postImage" placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+
+            <button class="btn" onclick="createPost()" style="width: 100%;">🚀 Publicar</button>
+        </section>
+
+        <!-- Contenedor de Posts -->
+        <section class="posts-container" id="postsContainer">
+            <div class="empty-state">
+                <h3>🎮 Bienvenido a GameZone</h3>
+                <p>Tu blog personal de videojuegos está listo para recibir contenido épico.</p>
+                <p>Inicia sesión para comenzar a publicar tus aventuras gaming.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 GameZone Blog - Powered by Gaming Passion 🎮</p>
+        <p>Diseñado con fibra de carbono y amor por los videojuegos</p>
+    </footer>
+
+    <script>
+        // Variables globales
+        let isLoggedIn = false;
+        let posts = [];
+        let postIdCounter = 1;
+
+        // Sistema de login
+        function showLogin() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'usuario' && password === '098765') {
+                isLoggedIn = true;
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'block';
+                document.getElementById('adminPanel').style.display = 'block';
+                closeLogin();
+                
+                // Añadir efecto de éxito
+                document.getElementById('adminPanel').classList.add('bounce');
+                setTimeout(() => {
+                    document.getElementById('adminPanel').classList.remove('bounce');
+                }, 600);
+
+                // Limpiar campos
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                
+                alert('¡Bienvenido, Admin! 🎮');
+            } else {
+                alert('❌ Credenciales incorrectas. Inténtalo de nuevo.');
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'none'; 
+            document.getElementById('adminPanel').style.display = 'none';
+            alert('👋 Has cerrado sesión correctamente.');
+        }
+
+        // Gestión de posts
+        function toggleContentInputs() {
+            const postType = document.getElementById('postType').value;
+            const imageGroup = document.getElementById('imageGroup');
+            
+            if (postType === 'imagen') {
+                imageGroup.style.display = 'block';
+            } else {
+                imageGroup.style.display = 'block'; // Mantener visible para todas las opciones
+            }
+        }
+
+        function createPost() {
+            if (!isLoggedIn) {
+                alert('❌ Debes iniciar sesión para publicar.');
+                return;
+            }
+
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+            const imageUrl = document.getElementById('postImage').value.trim();
+            const type = document.getElementById('postType').value;
+
+            if (!title || !content) {
+                alert('❌ Por favor completa el título y el contenido.');
+                return;
+            }
+
+            const post = {
+                id: postIdCounter++,
+                title: title,
+                content: content,
+                image: imageUrl,
+                type: type,
+                date: new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            };
+
+            posts.unshift(post); // Agregar al inicio del array
+            renderPosts();
+            clearForm();
+            
+            alert('🎉 ¡Post publicado exitosamente!');
+        }
+
+        function deletePost(postId) {
+            if (!isLoggedIn) {
+                alert('❌ No tienes permisos para eliminar posts.');
+                return;
+            }
+
+            if (confirm('¿Estás seguro de que quieres eliminar este post?')) {
+                posts = posts.filter(post => post.id !== postId);
+                renderPosts();
+                alert('🗑️ Post eliminado correctamente.');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('postImage').value = '';
+            document.getElementById('postType').value = 'texto';
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                'texto': '📰',
+                'imagen': '🖼️',
+                'review': '⭐',
+                'noticia': '📢'
+            };
+            return icons[type] || '📝';
+        }
+
+        function getTypeName(type) {
+            const names = {
+                'texto': 'Artículo',
+                'imagen': 'Imagen',
+                'review': 'Review',
+                'noticia': 'Noticia'
+            };
+            return names[type] || 'Post';
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🎮 Bienvenido a GameZone</h3>
+                        <p>Tu blog personal de videojuegos está listo para recibir contenido épico.</p>
+                        ${!isLoggedIn ? '<p>Inicia sesión para comenzar a publicar tus aventuras gaming.</p>' : '<p>¡Comienza a crear contenido increíble!</p>'}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+                <article class="post">
+                    <header class="post-header">
+                        <div>
+                            <h2 class="post-title">${post.title}</h2>
+                            <div class="post-date">${post.date}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="post-type">${getTypeIcon(post.type)} ${getTypeName(post.type)}</span>
+                            ${isLoggedIn ? `<button class="delete-btn" onclick="deletePost(${post.id})">🗑️ Eliminar</button>` : ''}
+                        </div>
+                    </header>
+                    <div class="post-content">
+                        <p>${post.content.replace(/\n/g, '<br>')}</p>
+                        ${post.image ? `<img src="${post.image}" alt="${post.title}" class="post-image" onerror="this.style.display='none'">` : ''}
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function(event) {
+            const modal = document.getElementById('loginModal');
+            if (event.target === modal) {
+                closeLogin();
+            }
+        }
+
+        // Permitir Enter para login
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && document.getElementById('loginModal').style.display === 'block') {
+                login();
+            }
+        });
+
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPosts();
+            
+            // Ejemplo de posts iniciales para demostración
+            setTimeout(() => {
+                if (posts.length === 0) {
+                    posts.push({
+                        id: postIdCounter++,
+                        title: "¡Bienvenido a GameZone!",
+                        content: "Este es tu nuevo blog de videojuegos con diseño de fibra de carbono. Aquí podrás compartir reviews, noticias, y todo sobre el mundo gaming. ¡Inicia sesión y comienza a crear contenido épico!",
+                        image: "",
+                        type: "noticia",
+                        date: new Date().toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })
+                    });
+                    renderPosts();
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
